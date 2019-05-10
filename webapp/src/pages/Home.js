@@ -5,8 +5,10 @@ import Topnavbar from "./components/Topnavbar"
 import Container from 'react-bootstrap/Container'
 import Row from "react-bootstrap/Row"
 import Col from "react-bootstrap/Col"
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 
-const items = [
+let notes = [
     {
         title: "John",
         content: "Insert something about John here"
@@ -29,48 +31,133 @@ class Home extends Component {
         super(props);
         this.state = {
             "content": undefined,
-            contentChanged: true
+            contentChanged: false,
+            notes: notes,
+            filteredNotes: notes,
+            activeNoteTitle: undefined,
+            activeNoteContent: undefined,
+            updatedNoteTitle: "",
+            updatedNoteContent: ""
         }
-        this.topnavbarElement = React.createRef()
+        this.titleRef = React.createRef()
     }
     setContent(title) {
-        let filtered = items.filter(item => item.title == title)
-        let textarea = document.getElementById("textContent")
-        textarea.value = filtered[0].content
-        this.topnavbarElement.current.disableSaveStatus()
+        let filtered = this.state.notes.filter(item => item.title == title)
+        this.setState({
+            activeNoteTitle: filtered[0].title,
+            activeNoteContent: filtered[0].content,
+            updatedNoteTitle: filtered[0].title,
+            updatedNoteContent: filtered[0].content,
+            contentChanged: false
+        })
     }
-    enableSave() {
-        this.topnavbarElement.current.enableSaveStatus()
+    appendNote() {
+        let note = {
+            title: "New Note",
+            content: ""
+        }
+        let notes = this.state.notes
+        notes.push(note)
+        this.setState({
+            notes: notes,
+            filteredNotes: notes
+        })  
+        this.setContent("New Note")
+        this.titleRef.current.focus()
+    }
+    filterNotes(event) {
+        const substring = event.target.value.toLocaleLowerCase()
+        const filtered = this.state.notes.filter(function(item) {
+            if(item.title.toLocaleLowerCase().indexOf(substring) != -1) {
+                return item.title
+            }
+        })
+        this.setState({
+            filteredNotes: filtered
+        })
+    }
+    saveNote() {
+        let notes = this.state.notes
+        const index = notes.findIndex(note => note.title === this.state.activeNoteTitle)
+        const title = this.state.updatedNoteTitle
+        const content = this.state.updatedNoteContent
+        const updatedNote = {
+            "title": title,
+            "content": content
+        }
+        notes.splice(index, 1, updatedNote)
+        this.setState({
+            notes: notes,
+            filteredNotes: notes,
+            contentChanged: false
+        })
+    }
+    updateNote(event) {
+        // console.log("id:", event.target.id)
+        // console.log("value:", event.target.value)
+        if(event.target.id === "noteTitle") {
+            this.setState({
+                updatedNoteTitle: event.target.value
+            })
+        } else if(event.target.id === "noteContent") {
+            this.setState({
+                updatedNoteContent: event.target.value
+            })
+        } else {
+            return
+        }
+        this.setState({
+            contentChanged: true
+        })
     }
     render() {
         return (
-            <Container>
+            <>
+            <Container className="height100">
                 <Row>
                     <Col>
                         <Topnavbar 
                             className="navbar"
-                            contentChanged={this.state.contentChanged}
-                            ref={this.topnavbarElement}
                         />
                     </Col>    
                 </Row>
-                <Row>
-                    <Col lg={2} className="sidebar">
+                <Row className="height100">
+                    <Col lg={2} className="sidebar height100">
                         <Sidenavbar 
-                            items={items} 
+                            notes={this.state.filteredNotes} 
                             onClick={(title) => this.setContent(title)}
+                            appendNote={(note) => this.appendNote(note)}
+                            filterNotes={(event) => this.filterNotes(event)}
+                            contentChanged={this.state.contentChanged}
+                            saveNote={() => this.saveNote()}
                         />
                     </Col>
-                    <Col lg={10} className="content">
-                        <textarea 
-                            id="textContent" 
-                            className="notes"
-                            onChange={() => this.enableSave()}
-                            >
-                        </textarea>
+                    <Col lg={10} className="content height100">
+                        <Container className="height100">
+                            <Row className={this.state.activeNoteTitle ? "" : "hidden"}>
+                                <Col className="noteTitle">
+                                    <input
+                                        id="noteTitle"
+                                        value={this.state.updatedNoteTitle}
+                                        onChange={(event) => this.updateNote(event)}
+                                        ref={this.titleRef}
+                                    ></input>
+                                </Col>
+                            </Row>
+                            <Row className="height100">
+                                <textarea 
+                                    id="noteContent" 
+                                    className="notes height100"
+                                    value={this.state.updatedNoteContent}
+                                    onChange={(event) => this.updateNote(event)}
+                                    >
+                                </textarea>
+                            </Row>
+                        </Container>
                     </Col>
                 </Row>
             </Container>
+            </>
         );
     }
 }
