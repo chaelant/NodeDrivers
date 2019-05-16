@@ -17,7 +17,7 @@ redisConnection.on('add-note', async (data, channel) => {
 redisConnection.on('delete-note', async (data, channel) => {
     console.log('received delete request');
     const result = await ddb.deleteNote(data.message.id);
-    redisConnection.emit('add-note-response', {
+    redisConnection.emit('delete-note-response', {
         message: result
     })
 });

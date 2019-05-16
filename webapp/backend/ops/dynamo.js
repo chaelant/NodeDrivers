@@ -4,8 +4,8 @@ const AWS = require('aws-sdk/index');
 AWS.config.update({
     region: 'us-east-1',
     //endpoint: 'http://localhost:3000',
-    accessKeyId: 'AKIARU7XA6HVKNNUQCOE',
-    secretAccessKey: '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'
+    accessKeyId: 'AKIARU7XA6HVDS5P5GCN',
+    secretAccessKey: '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'
 });
 
 const docClient = new AWS.DynamoDB.DocumentClient();

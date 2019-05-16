@@ -61,6 +61,7 @@ class Home extends Component {
             contentChanged: false
         })
     }
+
     appendNote() {
         let note = {
             id: uuid(),
@@ -94,23 +95,10 @@ class Home extends Component {
         // const id = this.state.updatedNoteId;
         console.log(index);
         console.log(this.state.activeNoteId);
-        if (notes.findIndex(note => note.id === this.state.activeNoteId)) {
-            await axios.get('http://localhost:5000/create', {
-                params: {
-                    id: this.state.updatedNoteId,
-                    title: this.state.updatedNoteTitle,
-                    content: this.state.updatedNoteContent
-                }
-            })
-        } else {
-            await axios.get('http://localhost:5000/update', {
-                params: {
-                    id: this.state.updatedNoteId,
-                    title: this.state.updatedNoteTitle,
-                    content: this.state.updatedNoteContent
-                }
-            })
-        }
+        // console.log(this.state.updatedNoteContent);
+        // console.log(this.state.updatedNoteId);
+        // console.log(this.state.updatedNoteTitle);
+
         const title = this.state.updatedNoteTitle;
         const content = this.state.updatedNoteContent;
         const updatedNote = {
@@ -119,12 +107,42 @@ class Home extends Component {
         };
         console.log(updatedNote);
         notes.splice(index, 1, updatedNote);
-        // await ddb.addNote(updatedNote.title, updatedNote.content);
         this.setState({
             notes: notes,
             filteredNotes: notes,
             contentChanged: false
         });
+
+        const isExistingNote = await axios.get('http://localhost:5000/cache', {
+            params: {
+                id: this.state.updatedNoteId,
+                title: this.state.updateNoteTitle,
+                content:this.state.updateNoteContent
+            }
+        });
+
+
+        console.log(isExistingNote);
+
+        if (isExistingNote.data === false) {
+            await axios.get('http://localhost:5000/create', {
+                        params: {
+                            id: this.state.updatedNoteId,
+                            title: this.state.updatedNoteTitle,
+                            content: this.state.updatedNoteContent
+                        }
+                    });
+        } else {
+            await axios.get('http://localhost:5000/update', {
+                        params: {
+                            id: this.state.updatedNoteId,
+                            title: this.state.updatedNoteTitle,
+                            content: this.state.updatedNoteContent
+                        }
+                    });
+        }
+
+
     }
     updateNote(event) {
         // console.log("id:", event.target.id)
