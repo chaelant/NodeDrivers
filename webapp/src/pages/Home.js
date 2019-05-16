@@ -133,13 +133,6 @@ class Home extends Component {
         return (
             <>
                 <Container className="height100">
-                    <Row>
-                        <Col>
-                            <Topnavbar
-                                className="navbar"
-                            />
-                        </Col>
-                    </Row>
                     <Row className="height100">
                         <Col lg={2} className="sidebar height100">
                             <Sidenavbar
