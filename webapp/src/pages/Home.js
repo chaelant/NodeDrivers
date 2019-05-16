@@ -8,9 +8,9 @@ import Col from "react-bootstrap/Col"
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
-import { getAllNotes } from "../backend/elasticsearch";
-import * as ddb from "../backend/dynamo";
+import { getAllNotes } from "../../backend/ops/elasticsearch";
 
+const axios = require('axios');
 const uuid = require('uuid/v4');
 
 // console.log(notes);
@@ -50,7 +50,7 @@ class Home extends Component {
 
     setContent(title) {
         let filtered = this.state.notes.filter(item => item.title == title);
-        console.log(filtered);
+        // console.log(filtered);
         this.setState({
             activeNoteId: filtered[0].id,
             activeNoteTitle: filtered[0].title,
@@ -76,6 +76,7 @@ class Home extends Component {
         this.setContent("New Note");
         this.titleRef.current.focus()
     }
+
     filterNotes(event) {
         const substring = event.target.value.toLocaleLowerCase();
         const filtered = this.state.notes.filter(function(item) {
@@ -92,10 +93,23 @@ class Home extends Component {
         const index = notes.findIndex(note => note.id === this.state.activeNoteId);
         // const id = this.state.updatedNoteId;
         console.log(index);
+        console.log(this.state.activeNoteId);
         if (notes.findIndex(note => note.id === this.state.activeNoteId)) {
-            await ddb.addNote(this.state.updatedNoteId, this.state.updatedNoteTitle, this.state.updatedNoteContent)
+            await axios.get('http://localhost:5000/create', {
+                params: {
+                    id: this.state.updatedNoteId,
+                    title: this.state.updatedNoteTitle,
+                    content: this.state.updatedNoteContent
+                }
+            })
         } else {
-            await ddb.updateNote(this.state.activeNoteId, this.state.updatedNoteTitle, this.state.updatedNoteContent)
+            await axios.get('http://localhost:5000/update', {
+                params: {
+                    id: this.state.updatedNoteId,
+                    title: this.state.updatedNoteTitle,
+                    content: this.state.updatedNoteContent
+                }
+            })
         }
         const title = this.state.updatedNoteTitle;
         const content = this.state.updatedNoteContent;
@@ -103,13 +117,14 @@ class Home extends Component {
             "title": title,
             "content": content
         };
+        console.log(updatedNote);
         notes.splice(index, 1, updatedNote);
         // await ddb.addNote(updatedNote.title, updatedNote.content);
         this.setState({
             notes: notes,
             filteredNotes: notes,
             contentChanged: false
-        })
+        });
     }
     updateNote(event) {
         // console.log("id:", event.target.id)
@@ -133,6 +148,13 @@ class Home extends Component {
         return (
             <>
                 <Container className="height100">
+                    <Row>
+                        <Col>
+                            <Topnavbar
+                                className="navbar"
+                            />
+                        </Col>
+                    </Row>
                     <Row className="height100">
                         <Col lg={2} className="sidebar height100">
                             <Sidenavbar

@@ -17,12 +17,12 @@ class Sidenavbar extends Component {
                 <ListGroup.Item className="buttonItem">
                     <ButtonToolbar className="buttonToolbar">
                         <Button className="new" variant="outline-dark" onClick={() => this.props.appendNote()}>New</Button>
-                        <Button className={this.props.contentChanged ? "save" : "hidden"} 
+                        <Button className={this.props.contentChanged ? "save" : "hidden"}
                                 variant="outline-success"
                                 onClick={() => this.props.saveNote()}
-                                >
-                                Save
-                            </Button>
+                        >
+                            Save
+                        </Button>
                     </ButtonToolbar>
                     <InputGroup className="search">
                         <FormControl
