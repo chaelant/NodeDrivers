@@ -1,5 +1,5 @@
 const axios = require('axios/index');
-const esUrl = 'https://search-nodedrivers-notes-n7nguaedqxlyl4hwh6x3t476yu.us-east-1.es.amazonaws.com/lambda-index/lambda-type/';
+const esUrl = 'https://search-nodedrivers-final-tt6soi4ppisqo3prwkgbj4tvra.us-east-1.es.amazonaws.com/lambda-index/lambda-type/';
 
 exportedMethods = {
 
