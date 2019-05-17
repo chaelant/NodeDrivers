@@ -30,7 +30,8 @@ class Home extends Component {
             activeNoteTitle: undefined,
             updatedNoteId: "",
             updatedNoteTitle: "",
-            updatedNoteContent: ""
+            updatedNoteContent: "",
+            "showDeleteModal": false
         };
 
         this.titleRef = React.createRef()
@@ -48,7 +49,7 @@ class Home extends Component {
 
     }
 
-    setContent(title) {
+    setContent(title, focus) {
         let filtered = this.state.notes.filter(item => item.title == title);
         // console.log(filtered);
         this.setState({
@@ -59,6 +60,10 @@ class Home extends Component {
             updatedNoteTitle: filtered[0].title,
             updatedNoteContent: filtered[0].content,
             contentChanged: false
+        }, () => {
+            if(focus) {
+                this.titleRef.current.focus()
+            }
         })
     }
 
@@ -74,8 +79,7 @@ class Home extends Component {
             notes: notes,
             filteredNotes: notes
         });
-        this.setContent("New Note");
-        this.titleRef.current.focus()
+        this.setContent("New Note", true);
     }
 
     filterNotes(event) {
@@ -90,7 +94,13 @@ class Home extends Component {
         })
     }
     async saveNote() {
+        const title = this.state.updatedNoteTitle;
         let notes = this.state.notes;
+        let filtered = notes.filter(note => note.title === title)
+        if(filtered.length > 1) {
+            alert("Error: duplicate note title")
+            return
+        }
         const index = notes.findIndex(note => note.id === this.state.activeNoteId);
         // const id = this.state.updatedNoteId;
         console.log(index);
@@ -99,7 +109,6 @@ class Home extends Component {
         // console.log(this.state.updatedNoteId);
         // console.log(this.state.updatedNoteTitle);
 
-        const title = this.state.updatedNoteTitle;
         const content = this.state.updatedNoteContent;
         const updatedNote = {
             "title": title,
@@ -162,32 +171,57 @@ class Home extends Component {
             contentChanged: true
         })
     }
+    showDeleteModal() {
+        this.setState({
+            "showDeleteModal": true
+        })
+    }
+    closeDeleteModal() {
+        this.setState({
+            "showDeleteModal": false
+        })
+    }
+    async deleteNote() {
+        let notes = this.state.notes;
+        const index = notes.findIndex(note => note.id === this.state.activeNoteId);
+        if(index == -1) {
+            this.closeDeleteModal()
+            alert("Error: Note not found")
+            return
+        }
+        notes.splice(index, 1);
+        this.setState({
+            notes: notes,
+            filteredNotes: notes,
+            contentChanged: false,
+            activeNoteId: undefined,
+            activeNoteContent: undefined,
+            activeNoteTitle: undefined,
+            updatedNoteId: "",
+            updatedNoteTitle: "",
+            updatedNoteContent: ""
+        });
+        this.closeDeleteModal()
+    }
     render() {
         return (
             <>
-                <Container className="height100">
+                <Container>
                     <Row>
-                        <Col>
-                            <Topnavbar
-                                className="navbar"
-                            />
-                        </Col>
-                    </Row>
-                    <Row className="height100">
-                        <Col lg={2} className="sidebar height100">
+                        <Col lg={2} className="sidebar">
                             <Sidenavbar
                                 notes={this.state.filteredNotes}
                                 onClick={(title) => this.setContent(title)}
                                 appendNote={(note) => this.appendNote(note)}
                                 filterNotes={(event) => this.filterNotes(event)}
                                 contentChanged={this.state.contentChanged}
-                                saveNote={() => this.saveNote()}
+                                saveNote={async () => this.saveNote()}
                             />
                         </Col>
-                        <Col lg={10} className="content height100">
-                            <Container className="height100">
-                                <Row className={this.state.activeNoteTitle ? "" : "hidden"}>
-                                    <Col className="noteTitle">
+                        <Col lg={10} className="content">
+                            <Container className={this.state.activeNoteTitle ? "" : "hidden"}>
+                                <Row> 
+                                    <Col className="noteTitle" md={11}>
                                         <input
                                             id="noteTitle"
                                             value={this.state.updatedNoteTitle}
@@ -195,20 +229,38 @@ class Home extends Component {
                                             ref={this.titleRef}
                                         ></input>
                                     </Col>
+                                    <Col md={1}>
+                                        <Button className="delete" 
+                                                variant="outline-danger"
+                                                onClick={() => this.showDeleteModal()}
+                                                >
+                                                Delete
+                                        </Button>
+                                    </Col>
                                 </Row>
-                                <Row className="height100">
-                                <textarea
-                                    id="noteContent"
-                                    className="notes height100"
-                                    value={this.state.updatedNoteContent}
-                                    onChange={(event) => this.updateNote(event)}
-                                >
+                                <Row>
+                                    <textarea
+                                        id="noteContent"
+                                        className="notes"
+                                        value={this.state.updatedNoteContent}
+                                        onChange={(event) => this.updateNote(event)}
+                                    >
                                 </textarea>
                                 </Row>
                             </Container>
                         </Col>
                     </Row>
                 </Container>
+                <Modal show={this.state.showDeleteModal} className="deleteModal">
+                    <Modal.Body>
+                        <p>Are you sure you want to delete "{this.state.activeNoteTitle}"?</p>
+                    </Modal.Body>
+
+                    <Modal.Footer>
+                        <Button variant="outline-secondary" onClick={() => this.closeDeleteModal()}>Cancel</Button>
+                        <Button variant="outline-danger" onClick={async () => this.deleteNote()}>Delete</Button>
+                    </Modal.Footer>
+                </Modal>
             </>
         );
     }

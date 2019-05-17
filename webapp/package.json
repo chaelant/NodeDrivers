@@ -4,7 +4,9 @@
   "description": "Cross platform note taker",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --mode development"
+    "start": "concurrently \"webpack-dev-server --mode development\" \"node backend/server.js\" \"node backend/worker/worker.js\"",
+    "frontend": "webpack-dev-server --mode development",
+    "backend": "concurrently \"node backend/server.js\" \"node backend/worker/worker.js\""
   },
   "author": "Node Chasers",
   "license": "ISC",
@@ -15,6 +17,7 @@
     "bluebird": "^3.5.4",
     "body-parser": "^1.19.0",
     "bootstrap": "^4.3.1",
+    "concurrently": "^4.1.0",
     "cors": "^2.8.5",
     "express": "^4.16.4",
     "jquery": "^3.4.1",
