@@ -76,7 +76,46 @@ let exportedMethods = {
                 return true;
             }
         });
-    }
+    },
+
+    async getUsers() {
+
+        const readParams = {
+            TableName: 'Users'
+        };
+
+        docClient.scan(readParams, function(err, data) {
+            if (err) {
+                console.log('Error retrieving users' + '\n' + JSON.stringify(err, undefined, 2));
+            } else {
+                console.log('Got them!' + '\n' + JSON.stringify(data, undefined, 2))
+            }
+        })
+    },
+
+    async findUser(username) {
+        const findParams = {
+            TableName: 'Users',
+            Key: {
+                'username': username
+            }
+        };
+
+        docClient.get(findParams, function(err, data) {
+            if (err) {
+                console.log('Error retrieving users' + '\n' + JSON.stringify(err, undefined, 2));
+            } else {
+                if (Object.entries(data).length === 0 && data.constructor === Object) {
+                    console.log('That user doesn\'t exist');
+                    return false
+                } else {
+                    console.log('Got the user!' + '\n' + JSON.stringify(data, undefined, 2));
+                    return true
+                }
+            }
+        })
+    },
+
 };
 
 module.exports = exportedMethods;

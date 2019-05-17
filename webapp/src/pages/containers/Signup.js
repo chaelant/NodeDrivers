@@ -7,6 +7,7 @@ import {
 import LoaderButton from "../components/LoaderButton";
 import "./Signup.css";
 import { Redirect } from 'react-router';
+import { addUser } from "../../auth/userAuth";
 
 export default class Signup extends Component {
   constructor(props) {
@@ -49,6 +50,8 @@ export default class Signup extends Component {
       const newUser = {
         username: this.state.email,
         password: this.state.password };
+
+      await addUser(this.state.email, this.state.password);
 
       this.setState({
         newUser
