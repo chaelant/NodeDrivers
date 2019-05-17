@@ -48,8 +48,9 @@ app.get('/:op', async (req, res, next) => {
             });
             redisConnection.on('add-note-response', async (data, channel) => {
                 if (data.message) {
-                    res.sendStatus(200);
+                    res.sendStatus(200)
                 }
+                res.send()
             });
         } else if (req.params.op === 'update') {
             console.log('Update request');
@@ -62,8 +63,9 @@ app.get('/:op', async (req, res, next) => {
             });
             redisConnection.on('update-note-response', async (data, channel) => {
                 if (data.message) {
-                    res.sendStatus(200);
+                    res.sendStatus(200)
                 }
+                res.send()
             });
         } else if (req.params.op === 'delete') {
             console.log('Delete request');
@@ -76,15 +78,16 @@ app.get('/:op', async (req, res, next) => {
             });
             redisConnection.on('delete-note-response', async (data, channel) => {
                 if (data.message) {
-                    res.sendStatus(200);
+                    res.sendStatus(200)
                 }
+                res.send()
             });
         } else {
             console.log('Invalid request');
-            res.sendStatus(500);
+            res.sendStatus(500).send()
         }
     } else {
-        res.sendStatus(400);
+        res.sendStatus(400).send();
     }
 
 });
