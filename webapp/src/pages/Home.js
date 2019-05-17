@@ -219,7 +219,7 @@ class Home extends Component {
     }
 
     async addAuthors() {
-        alert(this.state.authors);
+        alert("Added " + this.state.authors + " to " + this.state.updatedNoteTitle + '!');
         await axios.get('http://localhost:5000/update', {
             params: {
                 id: this.state.updatedNoteId,
