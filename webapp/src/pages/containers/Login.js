@@ -3,6 +3,7 @@ import { FormGroup, FormControl, FormLabel } from "react-bootstrap";
 import LoaderButton from "../components/LoaderButton";
 import "./Login.css";
 import { Redirect } from 'react-router';
+import { validateUser } from "../../auth/userAuth";
 
 export default class Login extends Component {
   constructor(props) {
@@ -24,14 +25,24 @@ export default class Login extends Component {
     this.setState({
       [event.target.id]: event.target.value
     });
-  }
+  };
 
   handleSubmit = async event => {
     event.preventDefault();
 
     this.setState({ isLoading: true });
-    this.setState({loginSuccess: true})
-  }
+
+    const credentialsMatch = await validateUser(this.state.email, this.state.password);
+    console.log(credentialsMatch);
+
+    if (credentialsMatch) {
+      this.setState({loginSuccess: true})
+    } else {
+      alert('Email and/or password do not match. Please try again');
+      this.setState({ isLoading: false });
+    }
+
+  };
 
   render() {
     if (this.state.loginSuccess) {
