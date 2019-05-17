@@ -19,7 +19,8 @@ let exportedMethods = {
                 "id": id,
                 "title": title,
                 "content": content,
-                "author": author
+                "author": author,
+                "accessGrantedTo": []
             }
         };
 
@@ -34,30 +35,53 @@ let exportedMethods = {
         });
     },
 
-    async updateNote(id, title, content) {
+    async updateNote(id, title, content, newAuthor = '') {
+        if (newAuthor === '') {
+            const updateParams = {
+                TableName: "Notes",
+                Key: {
+                    "id": id
+                },
+                UpdateExpression: "set content = :c, title = :t ",
+                ExpressionAttributeValues: {
+                    ":c": content,
+                    ":t": title
+                },
+                ReturnValues: "UPDATED_NEW"
+            };
 
-        const updateParams = {
-            TableName: "Notes",
-            Key: {
-                "id": id
-            },
-            UpdateExpression: "set content = :c, title = :t ",
-            ExpressionAttributeValues: {
-                ":c": content,
-                ":t": title
-            },
-            ReturnValues: "UPDATED_NEW"
-        };
+            docClient.update(updateParams, function(err, data) {
+                if (err) {
+                    console.log('Error updating note!' + '\n' + JSON.stringify(err, undefined, 2));
+                    return false;
+                } else {
+                    console.log('Updated note!' + '\n' + JSON.stringify(data, undefined, 2));
+                    return true;
+                }
+            });
+        } else {
+            const updateParams = {
+                TableName: "Notes",
+                Key: {
+                    "id": id
+                },
+                UpdateExpression: "SET accessGrantedTo = list_append(accessGrantedTo, :a)",
+                ExpressionAttributeValues: {
+                    ":a": [newAuthor]
+                },
+                ReturnValues: "UPDATED_NEW"
+            };
+            docClient.update(updateParams, function(err, data) {
+                if (err) {
+                    console.log('Error updating note!' + '\n' + JSON.stringify(err, undefined, 2));
+                    return false;
+                } else {
+                    console.log('Updated note!' + '\n' + JSON.stringify(data, undefined, 2));
+                    return true;
+                }
+            });
+        }
 
-        docClient.update(updateParams, function(err, data) {
-            if (err) {
-                console.log('Error updating note!' + '\n' + JSON.stringify(err, undefined, 2));
-                return false;
-            } else {
-                console.log('Updated note!' + '\n' + JSON.stringify(data, undefined, 2));
-                return true;
-            }
-        });
     },
 
     async deleteNote(id) {

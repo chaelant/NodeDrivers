@@ -8,8 +8,9 @@ import Col from "react-bootstrap/Col"
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Spinner from "react-bootstrap/Spinner"
+import {FormGroup, FormControl, FormLabel} from "react-bootstrap"
 
-import { getAllNotes } from "../../backend/ops/elasticsearch";
+import { getAuthorizedNotes, getNotesByAuthor } from "../../backend/ops/elasticsearch";
 
 const axios = require('axios');
 const uuid = require('uuid/v4');
@@ -33,7 +34,8 @@ class Home extends Component {
             updatedNoteTitle: "",
             updatedNoteContent: "",
             "showDeleteModal": false,
-            "showDeleteSpinner": false
+            "showDeleteSpinner": false,
+            authors: ""
         };
         this.titleRef = React.createRef();
     }
@@ -41,20 +43,47 @@ class Home extends Component {
 
     async componentDidMount() {
 
-        notes = await getAllNotes();
-        this.setState({
-            notes: notes,
-            filteredNotes: notes
-        });
+        let ownedNotes = await getNotesByAuthor(this.props.cookies.get('current session'));
+        let otherNotes = await getAuthorizedNotes(this.props.cookies.get('current session'));
 
-        console.log(this.props.cookies.get('current session'));
-        //console.log(notes);
+        notes = ownedNotes.filter(elem => elem !== undefined);
+        let authNotes = otherNotes.filter(elem => elem !== undefined);
+
+        console.log('Using these to set state');
+        console.log(notes);
+        console.log(authNotes);
+
+        if (notes.length > 0 && authNotes.length === 0) {
+            this.setState({
+                notes: notes,
+                filteredNotes: notes
+            })
+        } else if (authNotes.length > 0 && notes.length === 0) {
+            this.setState({
+                notes: authNotes,
+                filteredNotes: authNotes
+            })
+        } else if (authNotes.length > 0 && notes.length > 0) {
+            this.setState({
+                notes: notes.concat(authNotes),
+                filteredNotes: notes.concat(authNotes)
+            })
+        } else {
+            this.setState({
+                notes: [],
+                filteredNotes: []
+            })
+        }
+
+        console.log('After set state');
+        console.log(this.state.notes);
+        // console.log(this.props.cookies.get('current session'));
 
     }
 
     setContent(title, focus) {
         let filtered = this.state.notes.filter(item => item.title == title);
-        // console.log(filtered);
+        console.log(filtered);
         this.setState({
             activeNoteId: filtered[0].id,
             activeNoteTitle: filtered[0].title,
@@ -188,6 +217,19 @@ class Home extends Component {
             "showDeleteSpinner": false
         })
     }
+
+    async addAuthors() {
+        alert(this.state.authors);
+        await axios.get('http://localhost:5000/update', {
+            params: {
+                id: this.state.updatedNoteId,
+                title: this.state.updatedNoteTitle,
+                content: this.state.updatedNoteContent,
+                newAuthor: this.state.authors
+            }
+        });
+    }
+
     async deleteNote() {
         this.setState({
             "showDeleteSpinner": true
@@ -242,6 +284,13 @@ class Home extends Component {
         }
         this.closeDeleteModal()
     }
+
+    handleChange = event => {
+        this.setState({
+            [event.target.id]: event.target.value
+        })
+    };
+
     render() {
         return (
             <>
@@ -286,6 +335,31 @@ class Home extends Component {
                                     >
                                 </textarea>
                                 </Row>
+                                <br/>
+                                <form>
+                                    <Row className="add_authors">
+                                        <Col md={2.5} className="justify-content-center">
+                                            <FormLabel>Share this note with a friend!</FormLabel>
+                                        </Col>
+                                        <Col>
+                                            <FormGroup controlId="authors">
+                                                <FormControl
+                                                    type="email"
+                                                    placeholder="Enter an email to allow access"
+                                                    onChange={this.handleChange}
+                                                    />
+                                            </FormGroup>
+                                        </Col>
+                                        <Col>
+                                            <Button className="share"
+                                                    variant="outline-primary"
+                                                    onClick={() => this.addAuthors()}
+                                            >
+                                                Share
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                </form>
                             </Container>
                         </Col>
                     </Row>

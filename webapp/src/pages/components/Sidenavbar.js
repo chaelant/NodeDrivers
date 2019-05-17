@@ -34,13 +34,15 @@ class Sidenavbar extends Component {
                     </InputGroup>
                 </ListGroup.Item>
                 {this.props.notes.map((item, index) => {
-                    return <ListGroup.Item
-                        action
-                        onClick={() => this.props.onClick(item.title)}
-                        key={index}
-                    >
-                        {item.title}
-                    </ListGroup.Item>
+                    if (item !== undefined) {
+                        return <ListGroup.Item
+                            action
+                            onClick={() => this.props.onClick(item.title)}
+                            key={index}
+                        >
+                            {item.title}
+                        </ListGroup.Item>
+                    }
                 })}
             </ListGroup>
         );

@@ -24,7 +24,7 @@ redisConnection.on('delete-note', async (data, channel) => {
 
 redisConnection.on('update-note', async (data, channel) => {
     console.log('received update request');
-    const result = await ddb.updateNote(data.message.id, data.message.title, data.message.content);
+    const result = await ddb.updateNote(data.message.id, data.message.title, data.message.content, data.message.newAuthor);
     redisConnection.emit('update-note-response', {
         message: result
     })
