@@ -12,13 +12,14 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 
 let exportedMethods = {
 
-    async addNote(id, title, content) {
+    async addNote(id, title, content, author) {
         const originParams = {
             TableName: "Notes",
             Item: {
                 "id": id,
                 "title": title,
-                "content": content
+                "content": content,
+                "author": author
             }
         };
 

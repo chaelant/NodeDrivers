@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 import "./LandingPage.css";
 
 export default class LandingPage extends Component {
@@ -10,6 +10,8 @@ export default class LandingPage extends Component {
       isLoading: true,
       notes: []
     };
+
+    console.log(this.props);
   }
 
   async componentDidMount() {
@@ -28,6 +30,9 @@ export default class LandingPage extends Component {
   }
 
   render() {
+    if (this.props.cookies.get('current session')) {
+      return <Redirect push to="/notes" />;
+    }
     return (
       <div className="Home">
        <div className="lander">

@@ -35,9 +35,9 @@ class Home extends Component {
             "showDeleteModal": false,
             "showDeleteSpinner": false
         };
-
-        this.titleRef = React.createRef()
+        this.titleRef = React.createRef();
     }
+
 
     async componentDidMount() {
 
@@ -47,6 +47,7 @@ class Home extends Component {
             filteredNotes: notes
         });
 
+        console.log(this.props.cookies.get('current session'));
         //console.log(notes);
 
     }
@@ -141,7 +142,8 @@ class Home extends Component {
                         params: {
                             id: this.state.updatedNoteId,
                             title: this.state.updatedNoteTitle,
-                            content: this.state.updatedNoteContent
+                            content: this.state.updatedNoteContent,
+                            author: this.props.cookies.get('current session')
                         }
                     });
         } else {

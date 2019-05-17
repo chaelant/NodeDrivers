@@ -15,6 +15,8 @@ export default class Login extends Component {
       password: "",
       loginSuccess: false,
     };
+    //this.props.cookies.remove('mikeramos92@gmail.com', {path: '/'});
+    console.log(this.props.isAuthenticated);
   }
 
   validateForm() {
@@ -35,12 +37,15 @@ export default class Login extends Component {
     const credentialsMatch = await validateUser(this.state.email, this.state.password);
     console.log(credentialsMatch);
 
-    if (credentialsMatch) {
-      this.setState({loginSuccess: true})
-    } else {
-      alert('Email and/or password do not match. Please try again');
-      this.setState({ isLoading: false });
-    }
+      if (!credentialsMatch) {
+          alert('Email and/or password do not match. Please try again');
+          this.setState({isLoading: false});
+      } else {
+          this.props.cookies.set('current session', this.state.email, '/');
+          this.props.authenticator(true);
+          this.setState({loginSuccess: true});
+          console.log(this.props);
+      }
 
   };
 
