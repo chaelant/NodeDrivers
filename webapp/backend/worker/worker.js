@@ -8,7 +8,7 @@ bluebird.promisifyAll(redis.RedisClient.prototype);
 
 redisConnection.on('add-note', async (data, channel) => {
     console.log('received add request');
-    const result = await ddb.addNote(data.message.id, data.message.title, data.message.content);
+    const result = await ddb.addNote(data.message.id, data.message.title, data.message.content, data.message.author);
     redisConnection.emit('add-note-response', {
         message: result
     })

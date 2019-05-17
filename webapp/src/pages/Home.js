@@ -136,6 +136,7 @@ class Home extends Component {
 
 
         console.log(isExistingNote);
+        const author = this.props.cookies.get('current session');
 
         if (isExistingNote.data === false) {
             await axios.get('http://localhost:5000/create', {
@@ -143,7 +144,7 @@ class Home extends Component {
                             id: this.state.updatedNoteId,
                             title: this.state.updatedNoteTitle,
                             content: this.state.updatedNoteContent,
-                            author: this.props.cookies.get('current session')
+                            author: author
                         }
                     });
         } else {

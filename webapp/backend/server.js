@@ -43,7 +43,8 @@ app.get('/:op', async (req, res, next) => {
                 message: {
                     id: req.query.id,
                     title: req.query.title,
-                    content: req.query.content
+                    content: req.query.content,
+                    author: req.query.author
                 }
             });
             redisConnection.on('add-note-response', async (data, channel) => {
