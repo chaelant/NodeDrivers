@@ -166,13 +166,13 @@ class Home extends Component {
         return (
             <>
                 <Container className="height100">
-                    <Row>
+                    {/* <Row>
                         <Col>
                             <Topnavbar
                                 className="navbar"
                             />
                         </Col>
-                    </Row>
+                    </Row> */}
                     <Row className="height100">
                         <Col lg={2} className="sidebar height100">
                             <Sidenavbar
@@ -181,7 +181,7 @@ class Home extends Component {
                                 appendNote={(note) => this.appendNote(note)}
                                 filterNotes={(event) => this.filterNotes(event)}
                                 contentChanged={this.state.contentChanged}
-                                saveNote={() => this.saveNote()}
+                                saveNote={async () => this.saveNote()}
                             />
                         </Col>
                         <Col lg={10} className="content height100">
