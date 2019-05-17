@@ -190,6 +190,10 @@ class Home extends Component {
             return
         }
         notes.splice(index, 1);
+        const updatedId = this.state.updatedNoteId
+        const updatedTitle = this.state.updatedNoteTitle
+        const updatedContent = this.state.updatedNoteContent
+
         this.setState({
             notes: notes,
             filteredNotes: notes,
@@ -202,6 +206,30 @@ class Home extends Component {
             updatedNoteContent: ""
         });
         this.closeDeleteModal()
+
+        const isExistingNote = await axios.get('http://localhost:5000/cache', {
+            params: {
+                id: updatedId,
+                title: updatedTitle, 
+                content: updatedContent
+            }
+        });
+
+        console.log(isExistingNote);
+
+        if (isExistingNote.data === false) {
+            alert("Error Deleting Note: note doesn't exist")
+        } else {
+            console.log("Deleting note: id:", updatedId, "title:", updatedTitle, "content:", updatedContent)
+            await axios.get('http://localhost:5000/delete', {
+                        params: {
+                            id: updatedId,
+                            title: updatedTitle, 
+                            content: updatedContent
+                        }
+                    });
+        }
+            
     }
     render() {
         return (
