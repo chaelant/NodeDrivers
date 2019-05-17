@@ -56,6 +56,8 @@ export default class Signup extends Component {
       this.setState({
         newUser
       });
+
+      alert("You're all signed up! Now, log in and you'll have access to your notes!")
     } catch (e) {
       alert(e.message);
     }
@@ -122,7 +124,7 @@ export default class Signup extends Component {
       <div className="Signup">
         {this.state.newUser === null
           ? this.renderForm()
-          : <Redirect push to="/notes" />
+          : <Redirect push to="/login" />
         }
       </div>
     );
