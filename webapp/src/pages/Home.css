@@ -51,3 +51,6 @@
     /* top: 0; */
     margin-top: 25px;
 }
+.deleteModalSpinner {
+    margin: 10px;
+}

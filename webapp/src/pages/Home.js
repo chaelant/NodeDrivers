@@ -7,6 +7,7 @@ import Row from "react-bootstrap/Row"
 import Col from "react-bootstrap/Col"
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import Spinner from "react-bootstrap/Spinner"
 
 import { getAllNotes } from "../../backend/ops/elasticsearch";
 
@@ -31,7 +32,8 @@ class Home extends Component {
             updatedNoteId: "",
             updatedNoteTitle: "",
             updatedNoteContent: "",
-            "showDeleteModal": false
+            "showDeleteModal": false,
+            "showDeleteSpinner": false
         };
 
         this.titleRef = React.createRef()
@@ -111,6 +113,7 @@ class Home extends Component {
 
         const content = this.state.updatedNoteContent;
         const updatedNote = {
+            "id": this.state.activeNoteId,
             "title": title,
             "content": content
         };
@@ -178,10 +181,14 @@ class Home extends Component {
     }
     closeDeleteModal() {
         this.setState({
-            "showDeleteModal": false
+            "showDeleteModal": false,
+            "showDeleteSpinner": false
         })
     }
     async deleteNote() {
+        this.setState({
+            "showDeleteSpinner": true
+        })
         let notes = this.state.notes;
         const index = notes.findIndex(note => note.id === this.state.activeNoteId);
         if(index == -1) {
@@ -194,18 +201,7 @@ class Home extends Component {
         const updatedTitle = this.state.updatedNoteTitle
         const updatedContent = this.state.updatedNoteContent
 
-        this.setState({
-            notes: notes,
-            filteredNotes: notes,
-            contentChanged: false,
-            activeNoteId: undefined,
-            activeNoteContent: undefined,
-            activeNoteTitle: undefined,
-            updatedNoteId: "",
-            updatedNoteTitle: "",
-            updatedNoteContent: ""
-        });
-        this.closeDeleteModal()
+
 
         const isExistingNote = await axios.get('http://localhost:5000/cache', {
             params: {
@@ -218,7 +214,7 @@ class Home extends Component {
         console.log(isExistingNote);
 
         if (isExistingNote.data === false) {
-            alert("Error Deleting Note: note doesn't exist")
+            alert("Error Deleting Note: note doesn't exist. (Have you not saved it?)")
         } else {
             console.log("Deleting note: id:", updatedId, "title:", updatedTitle, "content:", updatedContent)
             await axios.get('http://localhost:5000/delete', {
@@ -227,9 +223,21 @@ class Home extends Component {
                             title: updatedTitle, 
                             content: updatedContent
                         }
-                    });
+                    })
+            console.log("after axios get")
+            this.setState({
+                notes: notes,
+                filteredNotes: notes,
+                contentChanged: false,
+                activeNoteId: undefined,
+                activeNoteContent: undefined,
+                activeNoteTitle: undefined,
+                updatedNoteId: "",
+                updatedNoteTitle: "",
+                updatedNoteContent: ""
+            });
         }
-            
+        this.closeDeleteModal()
     }
     render() {
         return (
@@ -283,7 +291,7 @@ class Home extends Component {
                     <Modal.Body>
                         <p>Are you sure you want to delete "{this.state.activeNoteTitle}"?</p>
                     </Modal.Body>
-
+                    <Spinner className={this.state.showDeleteSpinner ? "deleteModalSpinner" : "hidden"} animation="border"/>
                     <Modal.Footer>
                         <Button variant="outline-secondary" onClick={() => this.closeDeleteModal()}>Cancel</Button>
                         <Button variant="outline-danger" onClick={async () => this.deleteNote()}>Delete</Button>
