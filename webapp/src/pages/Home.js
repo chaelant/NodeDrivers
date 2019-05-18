@@ -278,7 +278,17 @@ class Home extends Component {
         console.log(isExistingNote);
 
         if (isExistingNote.data === false) {
-            alert("Error Deleting Note: note doesn't exist. (Have you not saved it?)")
+            this.setState({
+                notes: notes,
+                filteredNotes: notes,
+                contentChanged: false,
+                activeNoteId: undefined,
+                activeNoteContent: undefined,
+                activeNoteTitle: undefined,
+                updatedNoteId: "",
+                updatedNoteTitle: "",
+                updatedNoteContent: ""
+            });
         } else {
             console.log("Deleting note: id:", updatedId, "title:", updatedTitle, "content:", updatedContent)
             await axios.get('http://localhost:5000/delete', {
