@@ -25,10 +25,11 @@ This project implements the following technologies covered in CS-554:
 
 | Technology | Purpose | Location |
 |------------|---------|----------|
-| [React](https://reactjs.org)      | Implementing user interface and component-based architecture | `webapp/src`
-| [Redis](https://redis.io)      | Caching data, pub/sub operations on the backend | `webapp/backend/worker` `webapp/backend/server.js`
-| Workers    | Moving heavy operations off of the backend server | `webapp/backend/worker/worker.js` 
-| [Express](https://expressjs.com)    | Leveraging a REST API to make database & cache requests | `webapp/backend/server.js`
+| [React](https://reactjs.org)      | Implementing user interface and component-based architecture | `webapp/src` |
+| [React Native](https://facebook.github.io/react-native/) | Implementing a mobile version of the application | |
+| [Redis](https://redis.io)      | Caching data, pub/sub operations on the backend | `webapp/backend/worker` `webapp/backend/server.js`|
+| Workers    | Moving heavy operations off of the backend server | `webapp/backend/worker/worker.js` |
+| [Express](https://expressjs.com)    | Leveraging a REST API to make database & cache requests | `webapp/backend/server.js`|
 | [Webpack](https://webpack.js.org)   | Serving the frontend | `webapp/webpack.config.js`
 
 The project implements the following technologies **not** covered in CS-554:
