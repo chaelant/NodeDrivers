@@ -51,19 +51,23 @@ export default class Signup extends Component {
         username: this.state.email,
         password: this.state.password };
 
-      await addUser(this.state.email, this.state.password);
+      const isValid = await addUser(this.state.email, this.state.password);
 
-      this.setState({
-        newUser
-      });
+      if (isValid) {
+        alert('That username has been taken!')
+      } else {
+        this.setState({
+          newUser
+        });
 
-      alert("You're all signed up! Now, log in and you'll have access to your notes!")
+        alert("You're all signed up! Now, log in and you'll have access to your notes!")
+      }
     } catch (e) {
       alert(e.message);
     }
 
     this.setState({ isLoading: false });
-  }
+  };
 
   handleConfirmationSubmit (event) {
     event.preventDefault();

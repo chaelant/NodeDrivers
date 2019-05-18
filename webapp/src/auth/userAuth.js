@@ -2,6 +2,9 @@
 
 const AWS = require('aws-sdk/index');
 // const uuid = require('uuid/v4');
+const bcrypt = require('bcryptjs');
+const saltRounds = 10;
+
 
 AWS.config.update({
     region: 'us-east-1',
@@ -51,6 +54,7 @@ export async function findUser(username) {
 
 //if this is successful, add a session id
 export async function validateUser(username, password) {
+
     const validateParams = {
         TableName: 'Users',
         Key: {
@@ -59,41 +63,66 @@ export async function validateUser(username, password) {
     };
 
     return docClient.get(validateParams).promise()
-        .then(result => {
+        .then(async result => {
             if (Object.entries(result).length === 0 && result.constructor === Object) {
                 console.log('That user doesn\'t exist');
                 return false
             } else {
-                if (result.Item.username === username && result.Item.password === password) {
-                    console.log('Validated!');
-                    return true
-                } else {
-                    console.log('Invalid credentials');
-                    return false
-                }
+                return await bcrypt.compare(password, result.Item.password)
             }
         });
 
     //return isValid;
 }
 
+// CHECK FOR DUPLICATE USER NAMES!!!
 export async function addUser(username, password) {
-    const newUserParams = {
+
+    const findParams = {
         TableName: 'Users',
-        Item: {
-            'username': username,
-            'password': password,
-            'sessionIds': []
+        Key: {
+            'username': username
         }
     };
 
-    docClient.put(newUserParams, function(err, data) {
-        if (err) {
-            console.log('Error adding user!' + '\n' + JSON.stringify(err, undefined, 2));
-            return false;
-        } else {
-            console.log('Added user!' + '\n' + JSON.stringify(data, undefined, 2));
-            return true;
-        }
-    })
+    const userExists = docClient.get(findParams).promise()
+        .then((data) => {
+            return !(Object.entries(data).length === 0 && data.constructor === Object);
+        });
+
+    // const userExists = docClient.get(findParams, function(err, data) {
+    //     if (err) {
+    //         console.log('Error retrieving users' + '\n' + JSON.stringify(err, undefined, 2));
+    //     } else {
+    //         return !(Object.entries(data).length === 0 && data.constructor === Object);
+    //     }
+    // });
+    //
+    console.log(userExists);
+
+    if (userExists) {
+        return bcrypt.genSalt(saltRounds, function(err, salt) {
+            bcrypt.hash(password, salt, function(err, hash) {
+                const newUserParams = {
+                    TableName: 'Users',
+                    Item: {
+                        'username': username,
+                        'password': hash
+                    }
+                };
+                docClient.put(newUserParams, function(err, data) {
+                    if (err) {
+                        console.log('Error adding user!' + '\n' + JSON.stringify(err, undefined, 2));
+                        return false;
+                    } else {
+                        console.log('Added user!' + '\n' + JSON.stringify(data, undefined, 2));
+                        return true;
+                    }
+                })
+            })
+        })
+    } else {
+        return false;
+    }
+
 }
