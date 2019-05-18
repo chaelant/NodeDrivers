@@ -9,11 +9,13 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Spinner from "react-bootstrap/Spinner"
 import {FormGroup, FormControl, FormLabel} from "react-bootstrap"
+import LoaderButton from "./components/LoaderButton";
 
 import { getAuthorizedNotes, getNotesByAuthor } from "../../backend/ops/elasticsearch";
 
 const axios = require('axios');
 const uuid = require('uuid/v4');
+const xss = require('xss');
 
 // console.log(notes);
 let notes = [];
@@ -126,22 +128,33 @@ class Home extends Component {
         })
     }
     async saveNote() {
-        const title = this.state.updatedNoteTitle;
+        const title = xss(this.state.updatedNoteTitle, {
+            whiteList: [],
+            stripIgnoreTag: true,
+            stripIgnoreTagBody: ['script']
+        });
+
         let notes = this.state.notes;
         let filtered = notes.filter(note => note.title === title)
         if(filtered.length > 1) {
-            alert("Error: duplicate note title")
+            alert("Error: duplicate note title");
             return
         }
         const index = notes.findIndex(note => note.id === this.state.activeNoteId);
         // const id = this.state.updatedNoteId;
-        console.log(index);
-        console.log(this.state.activeNoteId);
+        //console.log(this.state.updatedNoteContent);
+        // console.log(index);
+        // console.log(this.state.activeNoteId);
         // console.log(this.state.updatedNoteContent);
         // console.log(this.state.updatedNoteId);
         // console.log(this.state.updatedNoteTitle);
 
-        const content = this.state.updatedNoteContent;
+        const content = xss(this.state.updatedNoteContent, {
+            whiteList: [],
+            stripIgnoreTag: true,
+            stripIgnoreTagBody: ['script']
+        });
+
         const updatedNote = {
             "id": this.state.activeNoteId,
             "title": title,
@@ -219,7 +232,13 @@ class Home extends Component {
     }
 
     async addAuthors() {
-        alert("Added " + this.state.authors + " to " + this.state.updatedNoteTitle + '!');
+        const cleanAuthor = xss(this.state.authors, {
+            whiteList: [],
+            stripIgnoreTag: true,
+            stripIgnoreTagBody: ['script']
+        });
+
+        alert("Added " + cleanAuthor + " to " + this.state.updatedNoteTitle + '!');
         await axios.get('http://localhost:5000/update', {
             params: {
                 id: this.state.updatedNoteId,
@@ -291,6 +310,10 @@ class Home extends Component {
         })
     };
 
+    validateShareSubmit() {
+        return this.state.authors.length > 0;
+    }
+
     render() {
         return (
             <>
@@ -336,7 +359,7 @@ class Home extends Component {
                                 </textarea>
                                 </Row>
                                 <br/>
-                                <form>
+                                <form onSubmit={() => this.addAuthors()}>
                                     <Row className="add_authors">
                                         <Col md={2.5} className="justify-content-center">
                                             <FormLabel>Share this note with a friend!</FormLabel>
@@ -351,12 +374,13 @@ class Home extends Component {
                                             </FormGroup>
                                         </Col>
                                         <Col>
-                                            <Button className="share"
-                                                    variant="outline-primary"
-                                                    onClick={() => this.addAuthors()}
+                                            <LoaderButton
+                                                block
+                                                disabled={!this.validateShareSubmit()}
+                                                type="submit"
+                                                text="Share"
                                             >
-                                                Share
-                                            </Button>
+                                            </LoaderButton>
                                         </Col>
                                     </Row>
                                 </form>

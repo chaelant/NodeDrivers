@@ -52,7 +52,7 @@ export async function findUser(username) {
     })
 }
 
-//if this is successful, add a session id
+//if this is successful
 export async function validateUser(username, password) {
 
     const validateParams = {
